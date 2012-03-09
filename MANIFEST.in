@@ -1,0 +1,4 @@
+include *.md
+recursive-include rdflib_sparqlstore *.py
+include setup.*
+graft test
