@@ -1,3 +1,3 @@
-An adaptation of RDFLib BerkeleyDB Store’s key-value approach, using Kyoto Cabinet as a back-end.
+This is an RDFLib store around Ivan Herman et al.'s SPARQL service wrapper.
 
-Based on an original contribution by Drew Perttula.
+This extension has revived support for namespace bindings.
