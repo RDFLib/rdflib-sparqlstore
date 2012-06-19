@@ -4,11 +4,12 @@
 This is an RDFLib store around Ivan Herman et al.'s SPARQL service wrapper.
 This was first done in layer-cake, and then ported to rdflib 3 and rdfextras
 
-This version works with vanilla SPARQLWrapper installed by easy_install or similar
+This version works with vanilla SPARQLWrapper installed by easy_install or
+similar
 
 Changes:
-- Layercake adding support for namespace binding, I removed it again to work with
-  vanilla SPARQLWrapper
+- Layercake adding support for namespace binding, I removed it again to work
+  with vanilla SPARQLWrapper
 - JSON object mapping support suppressed
 - Replaced '4Suite-XML Domlette with Elementtree
 - Incorporated as an rdflib store
@@ -16,10 +17,14 @@ Changes:
 """
 
 __version__ = "1.02"
-__authors__  = u"Ivan Herman, Sergio Fernández, Carlos Tejo Alonso, Gunnar Aastrand Grimnes"
-__license__ = u'W3C® SOFTWARE NOTICE AND LICENSE, http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231'
+__authors__ = (
+    u"Ivan Herman, Sergio Fernández,",
+    u"Carlos Tejo Alonso, Gunnar Aastrand Grimnes")
+__license__ = (
+    u"W3C® SOFTWARE NOTICE AND LICENSE,",
+    u"http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231")
 __contact__ = 'Ivan Herman, ivan_herman@users.sourceforge.net'
-__date__    = "2011-01-30"
+__date__ = "2011-01-30"
 
 import re
 import sys
@@ -46,15 +51,17 @@ else:
 from rdfextras.store.REGEXMatching import NATIVE_REGEX
 
 from rdflib.store import Store
-from rdflib       import Variable, Namespace, BNode, URIRef, Literal
+from rdflib import Variable, Namespace, BNode, URIRef, Literal
+from rdflib.py3compat import PY3
 
 import httplib
 import urlparse
 
-class NSSPARQLWrapper(SPARQLWrapper):
-    nsBindings  = {}
 
-    def setNamespaceBindings(self,bindings) :
+class NSSPARQLWrapper(SPARQLWrapper):
+    nsBindings = {}
+
+    def setNamespaceBindings(self, bindings):
         """
         A shortcut for setting namespace bindings that will be added
         to the prolog of the query
@@ -63,7 +70,7 @@ class NSSPARQLWrapper(SPARQLWrapper):
         """
         self.nsBindings.update(bindings)
 
-    def setQuery(self,query) :
+    def setQuery(self, query):
         """
         Set the SPARQL query text. Note: no check is done on the
         validity of the query (syntax or otherwise) by this module,
@@ -75,15 +82,17 @@ class NSSPARQLWrapper(SPARQLWrapper):
         @type query: string
         @bug: #2320024
         """
-        self.queryType   = self._parseQueryType(query)
-        self.queryString = '\n'.join(['\n'.join(['PREFIX %s: <%s>'%(key,val)
-                                        for key,val in self.nsBindings.items()]),
+        self.queryType = self._parseQueryType(query)
+        self.queryString = '\n'.join(
+                        ['\n'.join(['PREFIX %s: <%s>' % (key, val)
+                            for key, val in self.nsBindings.items()]),
                                      query])
 
 BNODE_IDENT_PATTERN = re.compile('(?P<label>_\:[^\s]+)')
 SPARQL_NS = Namespace('http://www.w3.org/2005/sparql-results#')
-sparqlNsBindings = {u'sparql':SPARQL_NS}
-ElementTree._namespace_map["sparql"]=SPARQL_NS
+sparqlNsBindings = {u'sparql': SPARQL_NS}
+ElementTree._namespace_map["sparql"] = SPARQL_NS
+
 
 def TraverseSPARQLResultDOM(doc, asDictionary=False):
     """
@@ -115,9 +124,11 @@ def TraverseSPARQLResultDOM(doc, asDictionary=False):
                     return tuple(values)
             yield __locproc(values), vars
 
+
 def localName(qname):
     # wtf - elementtree cant do this for me
-    return qname[qname.index("}")+1:]
+    return qname[qname.index("}") + 1:]
+
 
 def CastToTerm(node):
     """
@@ -131,7 +142,7 @@ def CastToTerm(node):
     elif node.tag == '{%s}literal' % SPARQL_NS:
         if 'datatype' in node.attrib:
             dT = URIRef(node.attrib['datatype'])
-            if False: # not node.xpath('*'):
+            if False:  # not node.xpath('*'):
                 return Literal('', datatype=dT)
             else:
                 return Literal(node.text, datatype=dT)
@@ -143,6 +154,7 @@ def CastToTerm(node):
     else:
         raise Exception('Unknown answer type')
 
+
 class SPARQLResult(QueryResult):
     """
     Query result class for SPARQL
@@ -153,6 +165,7 @@ class SPARQLResult(QueryResult):
     json  : as JSON
     graph : as an RDFLib Graph - for CONSTRUCT and DESCRIBE queries
     """
+
     def __init__(self, result):
         self.result = ElementTree.parse(result)
         self.noAnswers = 0
@@ -165,6 +178,15 @@ class SPARQLResult(QueryResult):
     def __len__(self):
         raise NotImplementedError("Results are an iterable!")
 
+    def __bool_nonzero__(self):
+        return self.result.find(
+            './/{http://www.w3.org/2005/sparql-results#}result') is not None
+
+    if PY3:
+        __bool__ = __bool_nonzero__
+    else:
+        __nonzero__ = __bool_nonzero__
+
     def __iter__(self):
         """Iterates over the result entries"""
         self._parseResults()
@@ -173,7 +195,7 @@ class SPARQLResult(QueryResult):
                 self.noAnswers += 1
                 yield rt
 
-    def serialize(self,format='xml'):
+    def serialize(self, format='xml'):
         if format == 'python':
             self._parseResults()
             if self.askAnswer:
@@ -183,25 +205,29 @@ class SPARQLResult(QueryResult):
         elif format == 'xml':
             return self.result
         else:
-           raise Exception(
+            raise Exception(
                 "Result format not implemented: %s" % format)
 
-class SPARQLStore(NSSPARQLWrapper,Store):
+
+class SPARQLStore(NSSPARQLWrapper, Store):
     """
     An RDFLib store around a SPARQL endpoint
     """
-    context_aware = True
     formula_aware = False
     transaction_aware = False
     regex_matching = NATIVE_REGEX
     batch_unification = False
-    def __init__(self, identifier=None, bNodeAsURI = False, sparql11=True):
+
+    def __init__(self,
+            identifier=None, bNodeAsURI=False,
+            sparql11=True, context_aware=True):
         """
         """
         super(SPARQLStore, self).__init__(identifier, returnFormat=XML)
         self.bNodeAsURI = bNodeAsURI
         self.nsBindings = {}
         self.sparql11 = sparql11
+        self.context_aware = context_aware
 
     #Database Management Methods
     def create(self, configuration):
@@ -216,7 +242,8 @@ class SPARQLStore(NSSPARQLWrapper,Store):
         exists, but there is insufficient permissions to open the
         store.
         """
-        if create: raise Exception("Cannot create a SPARQL Endpoint")
+        if create:
+            raise Exception("Cannot create a SPARQL Endpoint")
 
     def destroy(self, configuration):
         """
@@ -270,7 +297,7 @@ class SPARQLStore(NSSPARQLWrapper,Store):
         """
         subjVar = Variable('subj')
         predVar = Variable('pred')
-        objVar  = Variable('obj')
+        objVar = Variable('obj')
         termsSlots = {}
         selectVars = []
         if subject is not None:
@@ -290,7 +317,7 @@ class SPARQLStore(NSSPARQLWrapper,Store):
             ' '.join([term.n3() for term in selectVars]),
             termsSlots.get(subjVar, subjVar).n3(),
             termsSlots.get(predVar, predVar).n3(),
-            termsSlots.get(objVar , objVar ).n3()
+            termsSlots.get(objVar, objVar).n3()
         )
         self.setQuery(query)
         doc = ElementTree.parse(SPARQLWrapper.query(self).response)
@@ -298,7 +325,7 @@ class SPARQLStore(NSSPARQLWrapper,Store):
         for rt, vars in TraverseSPARQLResultDOM(doc, asDictionary=True):
             yield (rt.get(subjVar, subject),
                    rt.get(predVar, predicate),
-                   rt.get(objVar, obj)),None
+                   rt.get(objVar, obj)), None
 
     def triples_choices(self, (subject, predicate, object_), context=None):
         """
@@ -317,12 +344,14 @@ class SPARQLStore(NSSPARQLWrapper,Store):
                     "supported for sparql1.0 endpoints")
         else:
             if context is not None:
-                q = "SELECT (count(*) as ?c) FROM <%s> WHERE { ?s ?p ?o . }" % context
+                q = "SELECT (count(*) as ?c) FROM <%s> WHERE {?s ?p ?o .}" % (
+                                                context)
             else:
-                q = "SELECT (count(*) as ?c) WHERE { ?s ?p ?o . }"
+                q = "SELECT (count(*) as ?c) WHERE {?s ?p ?o .}"
             self.setQuery(q)
             doc = ElementTree.parse(SPARQLWrapper.query(self).response)
-            rt, vars = iter(TraverseSPARQLResultDOM(doc, asDictionary=True)).next()
+            rt, vars = iter(
+                    TraverseSPARQLResultDOM(doc, asDictionary=True)).next()
             return int(rt.get(Variable("c")))
 
     def contexts(self, triple=None):
@@ -337,38 +366,46 @@ class SPARQLStore(NSSPARQLWrapper,Store):
 
     #Namespace persistence interface implementation
     def bind(self, prefix, namespace):
-        self.nsBindings[prefix]=namespace
+        self.nsBindings[prefix] = namespace
 
     def prefix(self, namespace):
         """ """
         return dict(
-                [(v, k) for k,v in self.nsBindings.items()]
+                [(v, k) for k, v in self.nsBindings.items()]
                     ).get(namespace)
 
     def namespace(self, prefix):
         return self.nsBindings.get(prefix)
 
     def namespaces(self):
-        for prefix,ns in self.nsBindings.items():
+        for prefix, ns in self.nsBindings.items():
             yield prefix, ns
+
 
 class SPARQLUpdateStore(SPARQLStore):
     """
     A store using SPARQL queries for read-access
     and SPARQL Update for changes
     """
-    def __init__(self, queryEndpoint=None,updateEndpoint=None, bNodeAsURI = False):
-        SPARQLStore.__init__(self, queryEndpoint, bNodeAsURI)
+
+    def __init__(self,
+        queryEndpoint=None, updateEndpoint=None,
+        bNodeAsURI=False, sparql11=True,
+        context_aware=True):
+        SPARQLStore.__init__(self,
+            queryEndpoint, bNodeAsURI, sparql11, context_aware)
         self.updateEndpoint = updateEndpoint
         p = urlparse.urlparse(self.updateEndpoint)
-        assert not p.username, "SPARQL Update store does not support HTTP authentication"
-        assert not p.password, "SPARQL Update store does not support HTTP authentication"
+        assert not p.username, \
+                    "SPARQL Update store does not support HTTP authentication"
+        assert not p.password, \
+                    "SPARQL Update store does not support HTTP authentication"
         assert p.scheme == "http", "SPARQL Update is an http protocol!"
         self.host = p.hostname
         self.port = p.port
         self.path = p.path
         self.connection = httplib.HTTPConnection(self.host, self.port)
-        self.headers = {'Content-type': "application/sparql-update" }
+        self.headers = {'Content-type': "application/sparql-update"}
 
     #Transactional interfaces
     def commit(self):
@@ -379,36 +416,46 @@ class SPARQLUpdateStore(SPARQLStore):
         """ """
         raise TypeError('The SPARQL Update store is not transaction aware')
 
-
-    def add(self, (subject, predicate, obj), context=None, quoted=False):
+    def add(self, spo, context=None, quoted=False):
         """ Add a triple to the store of triples. """
         assert not quoted
-        triple = "%s %s %s ." % (subject.n3(), predicate.n3(), obj.n3())
-        if context is not None:
-            q = "INSERT DATA { %s }" % triple
+        (subject, predicate, obj) = spo
+        triple = "%s %s %s " % (subject.n3(), predicate.n3(), obj.n3())
+        if self.context_aware and context is not None:
+            q = "INSERT DATA { GRAPH <%s> { %s } }" % (
+                                context.identifier, triple)
         else:
-            q = "INSERT DATA { GRAPH <%s> { %s } }" % (context, triple)
+            q = "INSERT DATA { %s }" % triple
         r = self._do_update(q)
-        r.read() # we expect no content
+        content = r.read()  # we expect no content
         if r.status not in (200, 204):
-            raise Exception("Could not update: %d %s" % (r.status, r.reason))
+            raise Exception("Could not update: %d %s\n%s" % (
+                    r.status, r.reason, content))
 
     def addN(self, quads):
         Store.addN(self, quads)
 
-    def remove(self, (subject, predicate, obj), context):
+    def remove(self, spo, context):
         """ Remove a triple from the store """
-        triple = "%s %s %s ." % (subject.n3(), predicate.n3(), obj.n3())
-        if context is not None:
-            q = "DELETE DATA { %s }" % triple
+        (subject, predicate, obj) = spo
+        if subject is None:
+            subject = Variable("S")
+        if predicate is None:
+            predicate = Variable("P")
+        if obj is None:
+            obj = Variable("O")
+        triple = "%s %s %s " % (subject.n3(), predicate.n3(), obj.n3())
+        if self.context_aware and context is not None:
+            q = "DELETE DATA { GRAPH <%s> { %s } }" % (
+                                context.identifier, triple)
         else:
-            q = "DELETE DATA { GRAPH <%s> { %s } }" % (context, triple)
+            q = "DELETE DATA { %s }" % triple
         r = self._do_update(q)
-        r.read() # we expect no content
+        content = r.read()  # we expect no content
         if r.status not in (200, 204):
-            raise Exception("Could not update: %d %s" % (r.status, r.reason))
+            raise Exception("Could not update: %d %s\n%s" % (
+                                    r.status, r.reason, content))
 
     def _do_update(self, update):
         self.connection.request('POST', self.path, update, self.headers)
         return self.connection.getresponse()
-

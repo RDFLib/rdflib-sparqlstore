@@ -80,7 +80,7 @@ config = dict(
     entry_points = {
         'rdf.plugins.store': [
             'SPARQLStore = rdflib_sparqlstore.SPARQLStore:SPARQLStore',
-        ],
+            'SPARQLUpdateStore = rdflib_sparqlstore.SPARQLStore:SPARQLUpdateStore',        ],
     }
 )
 
