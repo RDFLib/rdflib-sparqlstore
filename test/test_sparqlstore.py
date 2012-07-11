@@ -29,8 +29,8 @@ class SPARQLStoreDBPediaTestCase(unittest.TestCase):
     def test_Query(self):
         query = "select distinct ?Concept where {[] a ?Concept} LIMIT 1"
         res = self.graph.query(query, initNs={})
-        for i in res.serialize(format="python"):
-            assert type(i) == URIRef, i.n3()
+        for i in res:
+            assert type(i[0]) == URIRef, i[0].n3()
 
     def test_initNs(self):
         query = """\
@@ -38,8 +38,8 @@ class SPARQLStoreDBPediaTestCase(unittest.TestCase):
         """
         res = self.graph.query(query,
             initNs={"xyzzy":"http://www.w3.org/2004/02/skos/core#"})
-        for i in res.serialize(format="python"):
-            assert type(i) == Literal, i.n3()
+        for i in res:
+            assert type(i[0]) == Literal, i[0].n3()
 
     def test_noinitNs(self):
         query = """\
@@ -58,8 +58,8 @@ class SPARQLStoreDBPediaTestCase(unittest.TestCase):
         SELECT ?label WHERE { ?s a xyzzy:Concept ; xyzzy:prefLabel ?label . } LIMIT 10
         """
         res = self.graph.query(prologue+query)
-        for i in res.serialize(format="python"):
-            assert type(i) == Literal, i.n3()
+        for i in res:
+            assert type(i[0]) == Literal, i[0].n3()
 
 from nose import SkipTest
 import urllib2

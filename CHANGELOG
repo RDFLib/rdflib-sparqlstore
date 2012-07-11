@@ -1,0 +1,13 @@
+
+
+11/07/2012 Gunnar Grimnes
+	* Renamed SPARQLStore package to lowercase.
+	* SPARQLStore object is not directly importable:
+	  from rdflib_sparqlstore import SPARQLStore
+
+	* Made SPARQLStore return real rdflib.query.Result objects
+	  * This means any Query returning only a single variable will still
+	    return a tuple
+	  * Any registered Result serializer can now be used
+	  * serialize(format='python') is not longer required (or supported)
+
