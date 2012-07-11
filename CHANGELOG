@@ -1,6 +1,6 @@
 
 
-11/07/2012 Gunnar Grimnes
+11/07/2012 Gunnar Aastrand Grimnes
 	* Renamed SPARQLStore package to lowercase.
 	* SPARQLStore object is not directly importable:
 	  from rdflib_sparqlstore import SPARQLStore
@@ -10,4 +10,7 @@
 	    return a tuple
 	  * Any registered Result serializer can now be used
 	  * serialize(format='python') is not longer required (or supported)
+
+	* Fixed context-awareness.
+	* Fixed SPARQL Update deletes with variables
 

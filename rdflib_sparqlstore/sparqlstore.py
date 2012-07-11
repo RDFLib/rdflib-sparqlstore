@@ -258,12 +258,19 @@ class SPARQLStore(NSSPARQLWrapper, Store):
         else:
             selectVars.append(objVar)
 
-        query = "SELECT %s WHERE { %s %s %s }" % (
-            ' '.join([term.n3() for term in selectVars]),
-            termsSlots.get(subjVar, subjVar).n3(),
-            termsSlots.get(predVar, predVar).n3(),
-            termsSlots.get(objVar, objVar).n3()
-        )
+        if self.context_aware and context!=None: 
+            query = "SELECT %s WHERE { GRAPH <%s> { %s %s %s } }" % (' '.join([term.n3() for term in selectVars]), context.identifier,
+                termsSlots.get(subjVar, subjVar).n3(),
+                termsSlots.get(predVar, predVar).n3(),
+                termsSlots.get(objVar, objVar).n3()
+                )
+        else: 
+            query = "SELECT %s WHERE { %s %s %s }" % (' '.join([term.n3() for term in selectVars]),
+                termsSlots.get(subjVar, subjVar).n3(),
+                termsSlots.get(predVar, predVar).n3(),
+                termsSlots.get(objVar, objVar).n3()
+                )
+
         self.setQuery(query)
         doc = ElementTree.parse(SPARQLWrapper.query(self).response)
         #ElementTree.dump(doc)
@@ -288,9 +295,9 @@ class SPARQLStore(NSSPARQLWrapper, Store):
                     "For performance reasons, this is not" + \
                     "supported for sparql1.0 endpoints")
         else:
-            if context is not None:
+            if self.context_aware and context is not None:
                 q = "SELECT (count(*) as ?c) FROM <%s> WHERE {?s ?p ?o .}" % (
-                                                context)
+                                                context.identifier)
             else:
                 q = "SELECT (count(*) as ?c) WHERE {?s ?p ?o .}"
             self.setQuery(q)
@@ -365,7 +372,7 @@ class SPARQLUpdateStore(SPARQLStore):
         """ Add a triple to the store of triples. """
         assert not quoted
         (subject, predicate, obj) = spo
-        triple = "%s %s %s " % (subject.n3(), predicate.n3(), obj.n3())
+        triple = "%s %s %s ." % (subject.n3(), predicate.n3(), obj.n3())
         if self.context_aware and context is not None:
             q = "INSERT DATA { GRAPH <%s> { %s } }" % (
                                 context.identifier, triple)
@@ -389,12 +396,12 @@ class SPARQLUpdateStore(SPARQLStore):
             predicate = Variable("P")
         if obj is None:
             obj = Variable("O")
-        triple = "%s %s %s " % (subject.n3(), predicate.n3(), obj.n3())
+        triple = "%s %s %s ." % (subject.n3(), predicate.n3(), obj.n3())
         if self.context_aware and context is not None:
-            q = "DELETE DATA { GRAPH <%s> { %s } }" % (
-                                context.identifier, triple)
+            q = "DELETE { GRAPH <%s> { %s } } WHERE { GRAPH <%s> { %s } " % (
+                                context.identifier, triple, context.identifier, triple)
         else:
-            q = "DELETE DATA { %s }" % triple
+            q = "DELETE { %s } WHERE { %s } " % (triple, triple)
         r = self._do_update(q)
         content = r.read()  # we expect no content
         if r.status not in (200, 204):

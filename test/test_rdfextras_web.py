@@ -30,7 +30,7 @@ class TestSPARQL(unittest.TestCase):
         t.start()
         import time
         time.sleep(1)
-        store=rdflib_sparqlstore.SPARQLStore("http://localhost:57234/sparql")
+        store=rdflib_sparqlstore.SPARQLStore("http://localhost:57234/sparql", context_aware=False)
         g2=rdflib.Graph(store)
         b=rdflib.URIRef("http://example.org/book/book1")
         b2=rdflib.URIRef("http://example.org/book/b\xc3\xb6\xc3\xb6k8")
