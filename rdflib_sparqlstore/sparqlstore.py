@@ -357,7 +357,8 @@ class SPARQLUpdateStore(SPARQLStore):
         self.port = p.port
         self.path = p.path
         self.connection = httplib.HTTPConnection(self.host, self.port)
-        self.headers = {'Content-type': "application/sparql-update"}
+        self.headers = {'Content-type': "application/sparql-update", 
+                        'Connection': 'Keep-alive'}
 
     #Transactional interfaces
     def commit(self):
@@ -409,5 +410,5 @@ class SPARQLUpdateStore(SPARQLStore):
                                     r.status, r.reason, content))
 
     def _do_update(self, update):
-        self.connection.request('POST', self.path, update, self.headers)
+        self.connection.request('POST', self.path, update.encode("utf-8"), self.headers)
         return self.connection.getresponse()
