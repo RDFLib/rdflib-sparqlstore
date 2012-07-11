@@ -179,15 +179,12 @@ class SPARQLStore(NSSPARQLWrapper, Store):
 
     def open(self, configuration, create=False):
         """
-        Opens the store specified by the configuration string. If
-        create is True a store will be created if it does not already
-        exist. If create is False and a store does not already exist
-        an exception is raised. An exception is also raised if a store
-        exists, but there is insufficient permissions to open the
-        store.
+        sets the endpoint URL for this SPARQLStore
+        if create==True an exception is thrown. 
         """
         if create:
             raise Exception("Cannot create a SPARQL Endpoint")
+        self.endpoint=configuration
 
     def destroy(self, configuration):
         """
@@ -359,6 +356,29 @@ class SPARQLUpdateStore(SPARQLStore):
         self.connection = httplib.HTTPConnection(self.host, self.port)
         self.headers = {'Content-type': "application/sparql-update", 
                         'Connection': 'Keep-alive'}
+
+
+    def open(self, configuration, create=False):
+        """
+        sets the endpoint URLs for this SPARQLStore
+        if 'configuration' is a tuple, it is assumed to be: 
+           (queryEndpoint, updateEndpoint)
+        if not a tuple, both endpoints are set to the same value
+        if create==True an exception is thrown. 
+        """
+
+        if create:
+            raise Exception("Cannot create a SPARQL Endpoint")
+
+        if isinstance(configuration, tuple): 
+            self.endpoint=configuration[0]
+            if len(configuration)>1: 
+                self.updateEndpoint=configuration[1]
+        else: 
+            self.endpoint=configuration
+
+        if not self.updateEndpoint: self.updateEndpoint=self.endpoint
+
 
     #Transactional interfaces
     def commit(self):

@@ -14,3 +14,4 @@
 	* Fixed context-awareness.
 	* Fixed SPARQL Update deletes with variables
 
+	* Made compatible with SPARQLWrapper 1.5.1

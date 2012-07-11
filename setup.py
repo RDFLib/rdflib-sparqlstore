@@ -75,12 +75,13 @@ config = dict(
     test_suite = "test",
     install_requires = ["rdflib>=3.0",
                         "rdfextras>=0.1",
-                        "SPARQLWrapper",
+                        "SPARQLWrapper>=1.5.1",
                         ],
     entry_points = {
         'rdf.plugins.store': [
-            'SPARQLStore = rdflib_sparqlstore.SPARQLStore:SPARQLStore',
-            'SPARQLUpdateStore = rdflib_sparqlstore.SPARQLStore:SPARQLUpdateStore',        ],
+            'SPARQLStore = rdflib_sparqlstore:SPARQLStore',
+            'SPARQLUpdateStore = rdflib_sparqlstore:SPARQLUpdateStore',        
+            ],
     }
 )
 

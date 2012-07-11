@@ -19,7 +19,6 @@ class SPARQLStoreDBPediaTestCase(unittest.TestCase):
     def setUp(self):
         self.graph = Graph(store="SPARQLStore")
         self.graph.open(self.path, create=self.create)
-        self.graph.store.baseURI = self.path
         ns = list(self.graph.namespaces())
         assert len(ns) > 0, ns
 
@@ -68,3 +67,5 @@ try:
 except:
     raise SkipTest("No HTTP connection.")
 
+if __name__ == '__main__':
+    unittest.main()
