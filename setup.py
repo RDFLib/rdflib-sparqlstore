@@ -47,11 +47,11 @@ config = dict(
     version = __version__,
     description = "rdflib extension re-instituting SPARQLStore initNs kwarg",
     author = "RDFLib team",
-    maintainer = "Graham Higgins",
-    maintainer_email = "gjhiggins@gmail.com",
+    maintainer = "Gunnar Aastrand Grimnes",
+    maintainer_email = "rdflib-dev@googlegroups.com",
     url = "https://github.com/RDFLib/rdflib-sparqlstore",
     download_url = "https://github.com/RDFLib/rdflib-sparqlstore/zipball/master",
-    license = "BSD",
+    license = "W3C",
     platforms = ["any"],
     long_description = \
     """
@@ -61,7 +61,6 @@ config = dict(
     classifiers = ["Programming Language :: Python",
                    "Programming Language :: Python :: 2",
                    "Programming Language :: Python :: 3",
-                   "Programming Language :: Python :: 2.4",
                    "Programming Language :: Python :: 2.5",
                    "Programming Language :: Python :: 2.6",
                    "Programming Language :: Python :: 2.7",

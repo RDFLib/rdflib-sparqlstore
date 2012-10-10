@@ -16,16 +16,6 @@ Changes:
 
 """
 
-__version__ = "1.02"
-__authors__ = (
-    u"Ivan Herman, Sergio Fernández,",
-    u"Carlos Tejo Alonso, Gunnar Aastrand Grimnes")
-__license__ = (
-    u"W3C® SOFTWARE NOTICE AND LICENSE,",
-    u"http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231")
-__contact__ = 'Ivan Herman, ivan_herman@users.sourceforge.net'
-__date__ = "2011-01-30"
-
 import re
 import sys
 # import warnings

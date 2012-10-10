@@ -1,8 +1,7 @@
 
-
-11/07/2012 Gunnar Aastrand Grimnes
+v0.2 2012/10/10
 	* Renamed SPARQLStore package to lowercase.
-	* SPARQLStore object is not directly importable:
+	* SPARQLStore object is now directly importable:
 	  from rdflib_sparqlstore import SPARQLStore
 
 	* Made SPARQLStore return real rdflib.query.Result objects
