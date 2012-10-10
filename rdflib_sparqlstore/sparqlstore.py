@@ -180,12 +180,12 @@ class SPARQLStore(NSSPARQLWrapper, Store):
     batch_unification = False
 
     def __init__(self,
-            identifier=None, bNodeAsURI=False,
+            endpoint=None, bNodeAsURI=False,
             sparql11=True, context_aware=True):
         """
         """
-        if identifier:
-            super(SPARQLStore, self).__init__(identifier, returnFormat=XML)
+        if endpoint:
+            super(SPARQLStore, self).__init__(endpoint, returnFormat=XML)
         self.bNodeAsURI = bNodeAsURI
         self.nsBindings = {}
         self.sparql11 = sparql11
@@ -246,10 +246,10 @@ class SPARQLStore(NSSPARQLWrapper, Store):
         """ Remove a triple from the store """
         raise TypeError('The SPARQL store is read only')
 
-    def query(self, graph,
-                    query,
+    def query(self, query,
                     initNs={},
                     initBindings={},
+                    queryGraph=None,
                     DEBUG=False):
         self.debug = DEBUG
         assert isinstance(query, basestring)
@@ -266,7 +266,7 @@ class SPARQLStore(NSSPARQLWrapper, Store):
 
         self.resetQuery()
 
-        if self.context_aware and not isinstance(graph, ConjunctiveGraph): 
+        if self.context_aware and queryGraph and queryGraph!='__UNION__': 
             # we care about context
             
             if not re.search('[\s{]GRAPH[{\s]', query, flags=re.I) : 
@@ -276,7 +276,7 @@ class SPARQLStore(NSSPARQLWrapper, Store):
                 # not 100% sure how rock-steady this is
                 i1=query.index("{")+1
                 i2=query.rindex("}")
-                query=query[:i1]+' GRAPH %s { '%graph.identifier.n3()+\
+                query=query[:i1]+' GRAPH %s { '%queryGraph.n3()+\
                     query[i1:i2]+' } '+query[i2:]                
                     
         self.setQuery(query)
