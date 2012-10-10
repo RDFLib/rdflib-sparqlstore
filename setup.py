@@ -47,6 +47,7 @@ config = dict(
     version = __version__,
     description = "rdflib extension re-instituting SPARQLStore initNs kwarg",
     author = "RDFLib team",
+    author_email = "rdflib-dev@googlegroups.com",
     maintainer = "Gunnar Aastrand Grimnes",
     maintainer_email = "rdflib-dev@googlegroups.com",
     url = "https://github.com/RDFLib/rdflib-sparqlstore",
