@@ -41,7 +41,7 @@ from rdfextras.store.REGEXMatching import NATIVE_REGEX
 
 from rdflib.store import Store
 from rdflib.query import Result
-from rdflib import Variable, Namespace, BNode, URIRef, Literal, ConjunctiveGraph
+from rdflib import Variable, Namespace, BNode, URIRef, Literal
 
 import httplib
 import urlparse
@@ -143,23 +143,24 @@ def CastToTerm(node):
     else:
         raise Exception('Unknown answer type')
 
+
 class SPARQLStore(NSSPARQLWrapper, Store):
     """
     An RDFLib store around a SPARQL endpoint
 
-    This is in theory context-aware, and should work OK 
+    This is in theory context-aware, and should work OK
     when the context is specified. (I.e. for Graph objects)
-    then all queries should work against the named graph with the 
-    identifier of the graph only. 
+    then all queries should work against the named graph with the
+    identifier of the graph only.
 
     For ConjunctiveGraphs, reading is done from the "default graph"
     Exactly what this means depends on your endpoint.
-    General SPARQL does not offer a simple way to query the 
-    union of all graphs. 
+    General SPARQL does not offer a simple way to query the
+    union of all graphs.
 
-    Fuseki/TDB has a flag for specifying that the default graph 
+    Fuseki/TDB has a flag for specifying that the default graph
     is the union of all graphs (tdb:unionDefaultGraph in the Fuseki config)
-    If this is set this will work fine. 
+    If this is set this will work fine.
 
 
 
@@ -188,20 +189,21 @@ class SPARQLStore(NSSPARQLWrapper, Store):
     def open(self, configuration, create=False):
         """
         sets the endpoint URL for this SPARQLStore
-        if create==True an exception is thrown. 
+        if create==True an exception is thrown.
         """
         if create:
             raise Exception("Cannot create a SPARQL Endpoint")
 
-        self.query_endpoint=configuration
+        self.query_endpoint = configuration
 
-    def __set_query_endpoint(self,queryEndpoint):
+    def __set_query_endpoint(self, queryEndpoint):
         super(SPARQLStore, self).__init__(queryEndpoint, returnFormat=XML)
-        self.endpoint=queryEndpoint
-    def __get_query_endpoint(self): 
+        self.endpoint = queryEndpoint
+
+    def __get_query_endpoint(self):
         return self.endpoint
 
-    query_endpoint=property(__get_query_endpoint, __set_query_endpoint)
+    query_endpoint = property(__get_query_endpoint, __set_query_endpoint)
 
     def destroy(self, configuration):
         """
@@ -246,29 +248,30 @@ class SPARQLStore(NSSPARQLWrapper, Store):
         self.setNamespaceBindings(initNs)
         if initBindings:
             if not self.sparql11:
-                raise Exception("initBindings not supported for SPARQL 1.0 Endpoints.")
-            v=list(initBindings)
+                raise Exception(
+                    "initBindings not supported for SPARQL 1.0 Endpoints.")
+            v = list(initBindings)
 
-            # VALUES was added to SPARQL 1.1 on 2012/07/24 
-            query+="\nVALUES ( %s )\n{ ( %s ) }\n"\
-                %(" ".join("?"+str(x) for x in v),
+            # VALUES was added to SPARQL 1.1 on 2012/07/24
+            query += "\nVALUES ( %s )\n{ ( %s ) }\n"\
+                % (" ".join("?" + str(x) for x in v),
                   " ".join(initBindings[x].n3() for x in v))
 
         self.resetQuery()
 
-        if self.context_aware and queryGraph and queryGraph!='__UNION__': 
+        if self.context_aware and queryGraph and queryGraph != '__UNION__':
             # we care about context
-            
-            if not re.search('[\s{]GRAPH[{\s]', query, flags=re.I) : 
-                # if a GRAPH clause was already specified, move on... 
 
-                # insert GRAPH clause after/before first/last { } 
+            if not re.search('[\s{]GRAPH[{\s]', query, flags=re.I):
+                # if a GRAPH clause was already specified, move on...
+
+                # insert GRAPH clause after/before first/last { }
                 # not 100% sure how rock-steady this is
-                i1=query.index("{")+1
-                i2=query.rindex("}")
-                query=query[:i1]+' GRAPH %s { '%queryGraph.n3()+\
-                    query[i1:i2]+' } '+query[i2:]                
-                    
+                i1 = query.index("{") + 1
+                i2 = query.rindex("}")
+                query = query[:i1] + ' GRAPH %s { ' % queryGraph.n3() + \
+                    query[i1:i2] + ' } ' + query[i2:]
+
         self.setQuery(query)
 
         return Result.parse(SPARQLWrapper.query(self).response)
@@ -280,36 +283,36 @@ class SPARQLStore(NSSPARQLWrapper, Store):
 
         vars = []
         if not s:
-            s=Variable('s')
+            s = Variable('s')
             vars.append(s)
 
         if not p:
-            p=Variable('p')
+            p = Variable('p')
             vars.append(p)
         if not o:
-            o=Variable('o')
+            o = Variable('o')
             vars.append(o)
 
         if vars:
-            v=' '.join([term.n3() for term in vars])
-        else: 
-            v='*'
+            v = ' '.join([term.n3() for term in vars])
+        else:
+            v = '*'
         if self.context_aware and context is not None:
-            
+
             query = "SELECT %s WHERE { GRAPH %s { %s %s %s } }" % \
                 (v, context.identifier.n3(),
-                 s.n3(), p.n3(), o.n3() )
-        else: 
+                 s.n3(), p.n3(), o.n3())
+        else:
             query = "SELECT %s WHERE { %s %s %s }" % \
-                (v, s.n3(), p.n3(), o.n3() )
+                (v, s.n3(), p.n3(), o.n3())
 
         self.setQuery(query)
         doc = ElementTree.parse(SPARQLWrapper.query(self).response)
         #ElementTree.dump(doc)
         for rt, vars in TraverseSPARQLResultDOM(doc, asDictionary=True):
-            yield (rt.get(s,s),
-                   rt.get(p,p),
-                   rt.get(o,o)), None
+            yield (rt.get(s, s),
+                   rt.get(p, p),
+                   rt.get(o, o)), None
 
     def triples_choices(self, (subject, predicate, object_), context=None):
         """
@@ -346,21 +349,23 @@ class SPARQLStore(NSSPARQLWrapper, Store):
         This causes a named-graph-uri key / value  pair to be sent over
         the protocol
         """
-        
+
         if triple:
-            s,p,o=triple
+            s, p, o = triple
         else:
-            s=p=o=None
+            s = p = o = None
 
-        params=((s if s else Variable('s')).n3(),
-                (p if p else Variable('p')).n3(),
-                (o if o else Variable('o')).n3())
+        params = ((s if s else Variable('s')).n3(),
+                  (p if p else Variable('p')).n3(),
+                  (o if o else Variable('o')).n3())
 
-        self.setQuery('SELECT ?name WHERE { GRAPH ?name { %s %s %s }}'%params)
+        self.setQuery(
+            'SELECT ?name WHERE { GRAPH ?name { %s %s %s }}' % params)
         doc = ElementTree.parse(SPARQLWrapper.query(self).response)
-        
-        return (rt.get(Variable("name")) for rt,vars in TraverseSPARQLResultDOM(doc, asDictionary=True))
-        
+
+        return (rt.get(Variable("name"))
+            for rt, vars in TraverseSPARQLResultDOM(doc, asDictionary=True))
+
     #Namespace persistence interface implementation
     def bind(self, prefix, namespace):
         self.nsBindings[prefix] = namespace
@@ -382,12 +387,12 @@ class SPARQLStore(NSSPARQLWrapper, Store):
 class SPARQLUpdateStore(SPARQLStore):
     """
     A store using SPARQL queries for read-access
-    and SPARQL Update for changes    
+    and SPARQL Update for changes
 
-    This can be context-aware, if so, any changes will 
-    be to the given named graph only. 
+    This can be context-aware, if so, any changes will
+    be to the given named graph only.
 
-    For Graph objects, everything works as expected. 
+    For Graph objects, everything works as expected.
 
 
 
@@ -401,15 +406,15 @@ class SPARQLUpdateStore(SPARQLStore):
         SPARQLStore.__init__(self,
             queryEndpoint, bNodeAsURI, sparql11, context_aware)
 
-        self.connection=None
+        self.connection = None
         if update_endpoint:
             self.update_endpoint = update_endpoint
 
-        self.headers = {'Content-type': "application/sparql-update", 
+        self.headers = {'Content-type': "application/sparql-update",
                         'Connection': 'Keep-alive'}
 
-    def __set_update_endpoint(self, update_endpoint): 
-        self.__update_endpoint=update_endpoint
+    def __set_update_endpoint(self, update_endpoint):
+        self.__update_endpoint = update_endpoint
 
         p = urlparse.urlparse(self.update_endpoint)
 
@@ -421,34 +426,39 @@ class SPARQLUpdateStore(SPARQLStore):
         self.host = p.hostname
         self.port = p.port
         self.path = p.path
-        self.connection = httplib.HTTPConnection(self.host, self.port)        
+        self.connection = httplib.HTTPConnection(
+            self.host, self.port)
 
     def __get_update_endpoint(self):
         return self.__update_endpoint
 
-    update_endpoint=property(__get_update_endpoint, __set_update_endpoint, doc='the HTTP URL for the Update endpoint, typically something like http://server/dataset/update')
+    update_endpoint = property(
+        __get_update_endpoint,
+        __set_update_endpoint,
+        doc='the HTTP URL for the Update endpoint, typically' + \
+            'something like http://server/dataset/update')
 
     def open(self, configuration, create=False):
         """
         sets the endpoint URLs for this SPARQLStore
-        if 'configuration' is a tuple, it is assumed to be: 
+        if 'configuration' is a tuple, it is assumed to be:
            (queryEndpoint, update_endpoint)
         if not a tuple, both endpoints are set to the same value
-        if create==True an exception is thrown. 
+        if create==True an exception is thrown.
         """
 
         if create:
             raise Exception("Cannot create a SPARQL Endpoint")
 
-        if isinstance(configuration, tuple): 
-            self.query_endpoint=configuration[0]
-            if len(configuration)>1: 
-                self.update_endpoint=configuration[1]
-        else: 
-            self.endpoint=configuration
+        if isinstance(configuration, tuple):
+            self.query_endpoint = configuration[0]
+            if len(configuration) > 1:
+                self.update_endpoint = configuration[1]
+        else:
+            self.endpoint = configuration
 
-        if not self.update_endpoint: self.update_endpoint=self.endpoint
-
+        if not self.update_endpoint:
+            self.update_endpoint = self.endpoint
 
     #Transactional interfaces
     def commit(self):
@@ -462,7 +472,7 @@ class SPARQLUpdateStore(SPARQLStore):
     def add(self, spo, context=None, quoted=False):
         """ Add a triple to the store of triples. """
 
-        if not self.connection: 
+        if not self.connection:
             raise "UpdateEndpoint is not set - call 'open'"
 
         assert not quoted
@@ -481,24 +491,24 @@ class SPARQLUpdateStore(SPARQLStore):
 
     def addN(self, quads):
         """ Add a list of quads to the store. """
-        if not self.connection: 
+        if not self.connection:
             raise "UpdateEndpoint is not set - call 'open'"
 
-        data=""
-        for spoc in quads: 
+        data = ""
+        for spoc in quads:
             (subject, predicate, obj, context) = spoc
             triple = "%s %s %s ." % (subject.n3(), predicate.n3(), obj.n3())
-            data+="INSERT DATA { GRAPH <%s> { %s } }\n" % ( context.identifier, triple)
+            data += "INSERT DATA { GRAPH <%s> { %s } }\n" % (
+                context.identifier, triple)
         r = self._do_update(data)
         content = r.read()  # we expect no content
         if r.status not in (200, 204):
             raise Exception("Could not update: %d %s\n%s" % (
                     r.status, r.reason, content))
 
-
     def remove(self, spo, context):
         """ Remove a triple from the store """
-        if not self.connection: 
+        if not self.connection:
             raise "UpdateEndpoint is not set - call 'open'"
 
         (subject, predicate, obj) = spo
@@ -508,11 +518,12 @@ class SPARQLUpdateStore(SPARQLStore):
             predicate = Variable("P")
         if not obj:
             obj = Variable("O")
-        
+
         triple = "%s %s %s ." % (subject.n3(), predicate.n3(), obj.n3())
         if self.context_aware and context is not None:
             q = "DELETE { GRAPH %s { %s } } WHERE { GRAPH %s { %s } }" % (
-                                context.identifier.n3(), triple, context.identifier.n3(), triple)
+                    context.identifier.n3(), triple,
+                    context.identifier.n3(), triple)
         else:
             q = "DELETE { %s } WHERE { %s } " % (triple, triple)
         r = self._do_update(q)
@@ -522,13 +533,14 @@ class SPARQLUpdateStore(SPARQLStore):
                                     r.status, r.reason, content))
 
     def _do_update(self, update):
-        self.connection.request('POST', self.path, update.encode("utf-8"), self.headers)
+        self.connection.request(
+            'POST', self.path, update.encode("utf-8"), self.headers)
         return self.connection.getresponse()
 
-    def update(self, query): 
+    def update(self, query):
         """
-        Perform a SPARQL Update Query against the endpoint, 
-        INSERT, LOAD, DELETE etc. 
+        Perform a SPARQL Update Query against the endpoint,
+        INSERT, LOAD, DELETE etc.
         """
         r = self._do_update(query)
         content = r.read()  # we expect no content
