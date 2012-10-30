@@ -3,3 +3,7 @@ dist
 *egg-info
 *pyc
 *~
+/.coverage
+/documentation/_build
+.tox
+coverage
