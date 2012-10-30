@@ -1,6 +1,7 @@
 import unittest
 from rdflib.graph import Graph
 
+
 class TestSPARQLStoreGraphCore(unittest.TestCase):
 
     store_name = 'SPARQLStore'
@@ -16,4 +17,3 @@ class TestSPARQLStoreGraphCore(unittest.TestCase):
 
     def tearDown(self):
         self.graph.close()
-
