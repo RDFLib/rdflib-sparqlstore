@@ -2,17 +2,17 @@
 #
 """
 This is an RDFLib store around Ivan Herman et al.'s SPARQL service wrapper.
-This was first done in layer-cake, and then ported to rdflib 3 and rdfextras
+This was first done in layer-cake, and then ported to RDFLib 3 and rdfextras
 
-This version works with vanilla SPARQLWrapper installed by easy_install or
+This version works with vanilla SPARQLWrapper installed by ``easy_install`` or
 similar
 
 Changes:
-- Layercake adding support for namespace binding, I removed it again to work
-  with vanilla SPARQLWrapper
-- JSON object mapping support suppressed
-- Replaced '4Suite-XML Domlette with Elementtree
-- Incorporated as an rdflib store
+    - Layercake adding support for namespace binding, I removed it again to
+      work with vanilla SPARQLWrapper
+    - JSON object mapping support suppressed
+    - Replaced '4Suite-XML Domlette with Elementtree
+    - Incorporated as an RDFLib store
 
 """
 
