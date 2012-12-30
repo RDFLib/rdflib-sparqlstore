@@ -28,3 +28,4 @@ store=rdflib_sparqlstore.SPARQLStore("http://dbpedia.org/sparql", context_aware=
 g=rdflib.Graph(store)
 ```
 
+[![Build Status](https://travis-ci.org/RDFLib/rdflib-sparqlstore.png?branch=master)](https://travis-ci.org/RDFLib/rdflib-sparqlstore)
