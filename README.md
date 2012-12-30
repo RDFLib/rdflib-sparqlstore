@@ -1,8 +1,9 @@
-==================
+
 RDFLib SPARQLstore
 ==================
+
 This is an RDFLib extension that provides an RDFLib Store around Ivan Herman
-et al.'s `SPARQL service wrapper <http://pypi.python.org/pypi/SPARQLWrapper>`_.
+et al.'s [SPARQL service wrapper](http://pypi.python.org/pypi/SPARQLWrapper).
 
 In essence, it allows a SPARQL 1.0 endpoint to behave as if it were a read-only
 RDFLib Store.
@@ -15,20 +16,16 @@ This extension has revived support for namespace bindings.
 
 Install with:
 
-.. code-block: bash
-
     $ pip install rdflib_sparqlstore
 
 Basic usage is
 
-    i) instantiate an RDFLib ConjunctiveGraph with "SPARQLStore" as the first
-       positional arg and then
+1. instantiate an RDFLib ConjunctiveGraph with "SPARQLStore" as the first
+   positional arg and then
 
-    ii) ``open``ing a known SPARQL endpoint
+2. ``open``ing a known SPARQL endpoint
 
 e.g.
-
-.. code-block:: python
 
     import rdflib
     g = rdflib.ConjunctiveGraph('SPARQLStore')
@@ -38,8 +35,6 @@ e.g.
 A SPARQLUpdateStore is also available, the example below shows how a graph of 
 updates can be applied to an existing endpoint / store:
 
-.. code-block:: python
-
     import rdflib
     g = rdflib.ConjunctiveGraph('SPARQLUpdateStore')
     g.open("http://localhost:3030/dataset/sparql",
@@ -48,8 +43,6 @@ updates can be applied to an existing endpoint / store:
 
 If the store object is explicitly created with the ``context_aware`` keyword
 param set to ``False``, then rdflib.Graph can be used: 
-
-.. code-block:: python
 
     import rdflib
     import rdflib_sparqlstore
