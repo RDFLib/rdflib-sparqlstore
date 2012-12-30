@@ -3,13 +3,16 @@
 import sys
 import re
 
+
 def setup_python3():
     # Taken from "distribute" setup.py
     from distutils.filelist import FileList
     from distutils import dir_util, file_util, util, log
-    from os.path import join
+    from os.path import join, exists
 
     tmp_src = join("build", "src")
+    if exists(tmp_src):
+        dir_util.remove_tree(tmp_src)
     log.set_verbosity(1)
     fl = FileList()
     for line in open("MANIFEST.in"):
@@ -30,6 +33,7 @@ def setup_python3():
 
     return tmp_src
 
+
 # Find version. We have to do this because we can't import it in Python 3 until
 # its been automatically converted in the setup process.
 def find_version(filename):
@@ -43,44 +47,42 @@ __version__ = find_version('rdflib_sparqlstore/__init__.py')
 
 
 config = dict(
-    name = 'rdflib-sparqlstore',
-    version = __version__,
-    description = "SPARQLStore rdflib extension - allows RDFLib Graphs on top of SPARQL Query/Update endpoints",
-    author = "RDFLib team",
-    author_email = "rdflib-dev@googlegroups.com",
-    maintainer = "Gunnar Aastrand Grimnes",
-    maintainer_email = "rdflib-dev@googlegroups.com",
-    url = "https://github.com/RDFLib/rdflib-sparqlstore",
-    download_url = "https://github.com/RDFLib/rdflib-sparqlstore/zipball/master",
-    license = "W3C",
-    platforms = ["any"],
-    long_description = \
-    """
-    RDFLib store based on SPARQLWrapper
-
-    """,
-    classifiers = ["Programming Language :: Python",
-                   "Programming Language :: Python :: 2",
-                   "Programming Language :: Python :: 3",
-                   "Programming Language :: Python :: 2.5",
-                   "Programming Language :: Python :: 2.6",
-                   "Programming Language :: Python :: 2.7",
-                   "Programming Language :: Python :: 3.2",
-                   "License :: OSI Approved :: BSD License",
-                   "Topic :: Software Development :: Libraries :: Python Modules",
-                   "Operating System :: OS Independent",
-                   "Natural Language :: English",
+    name='rdflib-sparqlstore',
+    version=__version__,
+    description="SPARQLStore rdflib extension - allows RDFLib Graphs " + \
+                  "on top of SPARQL Query/Update endpoints",
+    author="RDFLib team",
+    author_email="rdflib-dev@googlegroups.com",
+    maintainer="Gunnar Aastrand Grimnes",
+    maintainer_email="rdflib-dev@googlegroups.com",
+    url="https://github.com/RDFLib/rdflib-sparqlstore",
+    download_url="https://github.com/RDFLib/rdflib-sparqlstore/zipball/master",
+    license="W3C",
+    platforms=["any"],
+    long_description="""RDFLib store based on SPARQLWrapper""",
+    classifiers=[
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 2.5",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.2",
+        "License :: OSI Approved :: BSD License",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Operating System :: OS Independent",
+        "Natural Language :: English",
                    ],
-    packages = ["rdflib_sparqlstore"],
-    test_suite = "test",
-    install_requires = ["rdflib>=3.0",
-                        "rdfextras>=0.1",
-                        "SPARQLWrapper>=1.5.1",
-                        ],
-    entry_points = {
+    packages=["rdflib_sparqlstore"],
+    test_suite="test",
+    install_requires=["rdflib>=3.0",
+                      "rdfextras>=0.1",
+                      "SPARQLWrapper>=1.5.1",
+                      ],
+    entry_points={
         'rdf.plugins.store': [
             'SPARQLStore = rdflib_sparqlstore:SPARQLStore',
-            'SPARQLUpdateStore = rdflib_sparqlstore:SPARQLUpdateStore',        
+            'SPARQLUpdateStore = rdflib_sparqlstore:SPARQLUpdateStore',
             ],
     }
 )
@@ -92,10 +94,9 @@ if sys.version_info[0] >= 3:
 else:
     try:
         from setuptools import setup
-        config.update({'test_suite' : "nose.collector"})
+        config.update({'test_suite': "nose.collector"})
     except ImportError:
         from distutils.core import setup
 
 
 setup(**config)
-
