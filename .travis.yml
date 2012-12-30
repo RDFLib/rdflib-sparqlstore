@@ -1,4 +1,4 @@
-# http://travis-ci.org/#!/gjhiggins/rdflib-sparqlstore
+# http://travis-ci.org/#!/gjhiggins/rdflib-sqlite
 language: python
 python:
     - 2.5
@@ -6,6 +6,7 @@ python:
     - 2.7
     - 3.2
 install:
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.5' ]]; then pip install --use-mirrors elementtree; fi
     - pip install -r requirements.txt --use-mirrors
     - python setup.py install
 script:
