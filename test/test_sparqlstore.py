@@ -1,5 +1,4 @@
 import unittest
-import logging
 try:
     import SPARQLWrapper
 except ImportError:
@@ -8,7 +7,6 @@ except ImportError:
 
 from rdflib import Graph, URIRef, Literal
 
-_logger = logging.getLogger(__name__)
 
 class SPARQLStoreDBPediaTestCase(unittest.TestCase):
     store_name = 'SPARQLStore'
@@ -33,16 +31,18 @@ class SPARQLStoreDBPediaTestCase(unittest.TestCase):
 
     def test_initNs(self):
         query = """\
-        SELECT ?label WHERE { ?s a xyzzy:Concept ; xyzzy:prefLabel ?label . } LIMIT 10
+        SELECT ?label WHERE
+            { ?s a xyzzy:Concept ; xyzzy:prefLabel ?label . } LIMIT 10
         """
         res = self.graph.query(query,
-            initNs={"xyzzy":"http://www.w3.org/2004/02/skos/core#"})
+            initNs={"xyzzy": "http://www.w3.org/2004/02/skos/core#"})
         for i in res:
             assert type(i[0]) == Literal, i[0].n3()
 
     def test_noinitNs(self):
         query = """\
-        SELECT ?label WHERE { ?s a xyzzy:Concept ; xyzzy:prefLabel ?label . } LIMIT 10
+        SELECT ?label WHERE
+            { ?s a xyzzy:Concept ; xyzzy:prefLabel ?label . } LIMIT 10
         """
         self.assertRaises(
                 SPARQLWrapper.Wrapper.QueryBadFormed,
@@ -54,9 +54,10 @@ class SPARQLStoreDBPediaTestCase(unittest.TestCase):
         PREFIX xyzzy: <http://www.w3.org/2004/02/skos/core#>
         """
         query = """\
-        SELECT ?label WHERE { ?s a xyzzy:Concept ; xyzzy:prefLabel ?label . } LIMIT 10
+        SELECT ?label WHERE
+            { ?s a xyzzy:Concept ; xyzzy:prefLabel ?label . } LIMIT 10
         """
-        res = self.graph.query(prologue+query)
+        res = self.graph.query(prologue + query)
         for i in res:
             assert type(i[0]) == Literal, i[0].n3()
 
