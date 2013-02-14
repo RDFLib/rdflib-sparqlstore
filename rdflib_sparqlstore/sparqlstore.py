@@ -37,8 +37,6 @@ else:
     except ImportError:
         from elementtree import ElementTree
 
-from rdfextras.store.REGEXMatching import NATIVE_REGEX
-
 from rdflib.store import Store
 from rdflib.query import Result
 from rdflib import Variable, Namespace, BNode, URIRef, Literal
@@ -167,7 +165,6 @@ class SPARQLStore(NSSPARQLWrapper, Store):
     """
     formula_aware = False
     transaction_aware = False
-    regex_matching = NATIVE_REGEX
     batch_unification = False
 
     def __init__(self,
