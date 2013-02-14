@@ -13,7 +13,5 @@ script:
     # Must cd somewhere else so python3 doesn't get confused and run
     # the python2 code from the current directory instead of the installed
     # 2to3 version.
-    - if [[ $TRAVIS_PYTHON_VERSION == '2.5' ]]; then nosetests; fi
-    - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then nosetests; fi
-    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then nosetests; fi
-    - if [[ $TRAVIS_PYTHON_VERSION == '3.2' ]]; then nosetests --where=./build/src; fi
+    - if [[ ${TRAVIS_PYTHON_VERSION%%.*} == '2' ]]; then nosetests; fi
+    - if [[ ${TRAVIS_PYTHON_VERSION%%.*} == '3' ]]; then nosetests --where=./build/src; fi
