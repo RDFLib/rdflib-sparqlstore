@@ -411,7 +411,7 @@ class SPARQLUpdateStore(SPARQLStore):
             self.update_endpoint = update_endpoint
 
         self.headers = {'Content-type': "application/sparql-update",
-                        'Connection': 'Keep-alive'}
+                        'Connection': 'Keep-Alive'}
 
     def __set_update_endpoint(self, update_endpoint):
         self.__update_endpoint = update_endpoint
