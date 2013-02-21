@@ -76,7 +76,6 @@ config = dict(
     packages=["rdflib_sparqlstore"],
     test_suite="test",
     install_requires=["rdflib>=3.0",
-                      "rdfextras>=0.1",
                       "SPARQLWrapper>=1.5.1",
                       ],
     entry_points={
