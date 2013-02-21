@@ -1,3 +1,11 @@
+"""
+
+This tests against a local RDFLib backed SPARQL Endpoint. 
+
+This test requires rdfextras_web to be installed! 
+
+"""
+
 import unittest
 
 import threading 

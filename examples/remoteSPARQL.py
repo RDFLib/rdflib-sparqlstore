@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rdflib
-import rdfextras.store.SPARQL
+import rdflib_sparqlstore.SPARQLStore
 
 """
 This prints all the labels of 'Berlin' in DBpedia. 
@@ -20,7 +20,7 @@ export LC_TYPE=en_GB.utf-8
 
 if __name__=='__main__':
 
-    store=rdfextras.store.SPARQL.SPARQLStore("http://dbpedia.org/sparql")
+    store=rdflib_sparqlstore.SPARQLStore("http://dbpedia.org/sparql")
     graph=rdflib.Graph(store)
     berlin=rdflib.URIRef("http://dbpedia.org/resource/Berlin")
 
