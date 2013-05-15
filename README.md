@@ -1,3 +1,11 @@
+#NOTE
+```
+rdflib-sparqlstore was merged into core rdflib on 2013-05-01 
+
+Future development will happen in core rdflib. 
+
+```
+
 
 RDFLib SPARQLstore
 ==================
